@@ -1,22 +1,27 @@
-import React, {useState} from 'react';
-import { StyleSheet, Text, View, SafeAreaView, StatusBar, TouchableOpacity, FlatList } from 'react-native';
-import {Ionicons} from '@expo/vector-icons'
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, SafeAreaView, StatusBar, TouchableOpacity, FlatList, Modal, TextInput } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'
+import * as Animatable from 'react-native-animatable'
 
 import TaskList from './src/components/TaskList'
 
+const AnimatedBtn = Animatable.createAnimatableComponent(TouchableOpacity)
+
 export default function App() {
   const [task, setTask] = useState([
-    {key:1, task:'Estudar React Native'},
-    {key:2, task:'Pagar conta de energia'},
-    {key:3, task:'Parcela da faculdade'},
-    {key:4, task:'Pagar prestação do óculos'},
-    {key:5, task:'Imprimir boleto'}
+    { key: 1, task: 'Estudar React Native' },
+    { key: 2, task: 'Pagar conta de energia' },
+    { key: 3, task: 'Parcela da faculdade' },
+    { key: 4, task: 'Pagar prestação do óculos' },
+    { key: 5, task: 'Imprimir boleto' }
   ])
+  const [open, setOpen] = useState(false)
+  const [input, setInput] = useState('')
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar 
-        backgroundColor="#171d31" 
+      <StatusBar
+        backgroundColor="#171d31"
         barStyle="light-content"
       />
       <View style={styles.content}>
@@ -26,13 +31,47 @@ export default function App() {
       <FlatList
         showsHorizontalScrollIndicator={false}
         data={task}
-        keyExtractor={(item)=>String(item.key)}
-        renderItem={({ item })=><TaskList data={item}/>}
+        keyExtractor={(item) => String(item.key)}
+        renderItem={({ item }) => <TaskList data={item} />}
       />
 
-      <TouchableOpacity style={styles.fab}>
-        <Ionicons name="ios-add" size={35} color="#fff"/>
-      </TouchableOpacity>
+      <Modal animationType="slide" transparent={false} visible={open}>
+        <SafeAreaView style={styles.modal}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setOpen(false)}>
+              <Ionicons style={{marginLeft:5, marginRight:5}} name="md-arrow-back" size={40} color="#fff" />
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>Nova Tarefa</Text>
+          </View>
+
+          <Animatable.View style={styles.modalBody} animation="fadeInUp" useNativeDriver>
+            <TextInput
+              placeholder="O que precisa fazer hoje ?"
+              placeholderTextColor="#747474"
+              autoCorrect={false}
+              style={styles.input}
+              multiline={true}
+              value={input}
+              onChangeText={(texto)=>setInput(texto)}
+            />
+
+            <TouchableOpacity style={styles.handleAdd}>
+              <Text style={styles.handleAddText}>Cadastrar</Text>
+            </TouchableOpacity>
+          </Animatable.View>
+
+        </SafeAreaView>
+      </Modal>
+
+      <AnimatedBtn
+        style={styles.fab}
+        useNativeDriver
+        animation="bounceInUp"
+        duration={1500}
+        onPress={() => setOpen(true)}
+      >
+        <Ionicons name="ios-add" size={35} color="#fff" />
+      </AnimatedBtn>
 
     </SafeAreaView>
   );
@@ -41,34 +80,84 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:"#171d31"
+    backgroundColor: "#171d31"
   },
 
-  title:{
-    marginTop:15,
-    paddingBottom:10,
-    fontSize:16,
-    textAlign:'center',
+  title: {
+    marginTop: 15,
+    paddingBottom: 10,
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#fff'
+  },
+
+  fab: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    backgroundColor: "#0094ff",
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 30,
+    right: 25,
+    bottom: 25,
+    elevation: 2,
+    zIndex: 9,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: {
+      width: 1,
+      height: 3
+    }
+  },
+
+  modal:{
+    flex:1,
+    backgroundColor:'#171d31'
+  },
+
+  modalHeader:{
+    marginLeft:10,
+    marginTop:10,
+    flexDirection:'row',
+    alignItems:'center'
+  },
+
+  modalTitle:{
+    marginLeft:15,
+    fontSize:20,
     color:'#fff'
   },
 
-  fab:{
-    position:'absolute',
-    width:60,
-    height:60,
-    backgroundColor:"#0094ff",
+  modalBody:{
+    marginTop:15,
+  },
+
+  input:{
+    fontSize:15,
+    marginLeft:10,
+    marginRight:10,
+    marginTop:30,
+    backgroundColor:'#fff',
+    padding:9,
+    height:80,
+    textAlignVertical:'top',
+    color:'#000',
+    borderRadius:5
+  },
+
+  handleAdd:{
+    backgroundColor:'#fff',
+    marginTop:10,
     alignItems:'center',
     justifyContent:'center',
-    borderRadius:30,
-    right:25,
-    bottom:25,
-    elevation:2,
-    zIndex:9,
-    shadowColor:'#000',
-    shadowOpacity:0.2,
-    shadowOffset:{
-      width:1,
-      height:3
-    }
+    marginLeft:10,
+    marginRight:10,
+    height:40,
+    borderRadius:5
+  },
+
+  handleAddText:{
+    fontSize:17
   }
 });
